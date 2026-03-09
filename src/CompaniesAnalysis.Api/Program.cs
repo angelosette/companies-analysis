@@ -49,6 +49,7 @@ builder.Services.AddOpenApi(options =>
 });
 builder.Services.AddCors(o => o.AddDefaultPolicy(p =>    
     p.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader()));
+builder.Services.AddHttpContextAccessor(); 
 
 var app = builder.Build();
 
