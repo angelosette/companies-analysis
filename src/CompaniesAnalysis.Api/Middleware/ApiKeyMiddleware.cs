@@ -50,6 +50,7 @@ public class ApiKeyMiddleware
     }
 
     private static bool IsExcluded(PathString path) =>
+        path == "/" ||
         path.StartsWithSegments("/health") ||
         path.StartsWithSegments("/alive") ||
         path.StartsWithSegments("/scalar") ||

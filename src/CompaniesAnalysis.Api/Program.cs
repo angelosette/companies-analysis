@@ -2,6 +2,7 @@ using CompaniesAnalysis.Api.Endpoints;
 using CompaniesAnalysis.Api.Middleware;
 using CompaniesAnalysis.Application;
 using CompaniesAnalysis.Infrastructure;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.OpenApi;
 using Scalar.AspNetCore;
 
@@ -43,6 +44,10 @@ var app = builder.Build();
 
 await app.Services.ApplyMigrationsAsync();
 
+app.UseForwardedHeaders(new ForwardedHeadersOptions
+{
+    ForwardedHeaders = ForwardedHeaders.XForwardedProto | ForwardedHeaders.XForwardedHost
+});
 app.UseCors();
 app.UseMiddleware<ApiKeyMiddleware>();
 app.MapDefaultEndpoints();
@@ -53,6 +58,8 @@ app.MapScalarApiReference(options =>
     options.Title = "Companies Analysis API";
     options.Theme = ScalarTheme.Purple;
 });
+
+app.MapGet("/", () => Results.Redirect("/scalar")).ExcludeFromDescription();
 
 app.MapCompaniesEndpoints();
 app.MapImportEndpoints();
