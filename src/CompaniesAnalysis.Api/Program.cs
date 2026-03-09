@@ -16,6 +16,16 @@ builder.Services.AddOpenApi(options =>
 {
     options.AddDocumentTransformer((document, context, ct) =>
     {
+        var httpContext = context.ApplicationServices
+            .GetRequiredService<IHttpContextAccessor>().HttpContext;
+        if (httpContext is not null)
+        {
+            document.Servers = [new OpenApiServer 
+            { 
+                Url = $"{httpContext.Request.Scheme}://{httpContext.Request.Host}" 
+            }];
+        }
+
         document.Components ??= new();
         document.Components.SecuritySchemes = new Dictionary<string, IOpenApiSecurityScheme>
         {
@@ -44,10 +54,13 @@ var app = builder.Build();
 
 await app.Services.ApplyMigrationsAsync();
 
-app.UseForwardedHeaders(new ForwardedHeadersOptions
+var forwardedOptions = new ForwardedHeadersOptions
 {
     ForwardedHeaders = ForwardedHeaders.XForwardedProto | ForwardedHeaders.XForwardedHost
-});
+};
+forwardedOptions.KnownNetworks.Clear();
+forwardedOptions.KnownProxies.Clear();
+app.UseForwardedHeaders(forwardedOptions);
 app.UseCors();
 app.UseMiddleware<ApiKeyMiddleware>();
 app.MapDefaultEndpoints();
