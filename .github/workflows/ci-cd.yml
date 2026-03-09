@@ -74,7 +74,7 @@ jobs:
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     outputs:
-      image-tag: ${{ steps.meta.outputs.version }}
+      image-tag: ${{ github.sha }}
     steps:
       - uses: actions/checkout@v4
 
@@ -132,7 +132,7 @@ jobs:
           az containerapp update \
             --name ${{ secrets.CONTAINERAPP_NAME }} \
             --resource-group ${{ secrets.RESOURCE_GROUP }} \
-            --image ghcr.io/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}:${{ needs.docker-build-push.outputs.image-tag }}
+            --image ghcr.io/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}:$(echo "${{ github.sha }}" | cut -c1-7)
 
       - name: Verify deployment
         run: |
