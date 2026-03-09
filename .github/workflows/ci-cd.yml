@@ -122,13 +122,17 @@ jobs:
 
       - name: Update Container App image
         run: |
+          az containerapp registry set \
+            --name ${{ secrets.CONTAINERAPP_NAME }} \
+            --resource-group ${{ secrets.RESOURCE_GROUP }} \
+            --server ghcr.io \
+            --username ${{ github.actor }} \
+            --password ${{ secrets.GHCR_TOKEN }}
+
           az containerapp update \
             --name ${{ secrets.CONTAINERAPP_NAME }} \
             --resource-group ${{ secrets.RESOURCE_GROUP }} \
-            --image ghcr.io/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}:${{ needs.docker-build-push.outputs.image-tag }} \
-            --registry-server ghcr.io \
-            --registry-username ${{ github.actor }} \
-            --registry-password ${{ secrets.GHCR_TOKEN }}
+            --image ghcr.io/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}:${{ needs.docker-build-push.outputs.image-tag }}
 
       - name: Verify deployment
         run: |
